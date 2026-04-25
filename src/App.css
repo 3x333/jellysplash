@@ -53,15 +53,53 @@
   padding: 0.5rem 0 1rem;
 }
 
-.control-group {
+.import-btn {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.control-row {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   font-size: 0.875rem;
 }
 
-.import-btn {
-  width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 0.25rem;
+.control-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.control-hint {
+  opacity: 0.5;
+  font-size: 0.75rem;
+}
+
+.slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.upload-zone {
+  border: 2px dashed #444;
+  border-radius: 6px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #aaa;
+  transition: border-color 0.15s;
+}
+
+.upload-zone:hover {
+  border-color: #888;
 }

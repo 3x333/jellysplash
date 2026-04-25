@@ -14,7 +14,7 @@ export function useSplashRenderer({ images, config }: UseSplashRendererOptions) 
     const canvas = canvasRef.current;
     if (!canvas) return;
     const { outputWidth: W, outputHeight: H } = config;
-    canvas.width = W;
+    canvas.width  = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -22,7 +22,8 @@ export function useSplashRenderer({ images, config }: UseSplashRendererOptions) 
   }, [images, config]);
 
   useEffect(() => {
-    draw();
+    const id = setTimeout(draw, 60);
+    return () => clearTimeout(id);
   }, [draw]);
 
   const exportPng = useCallback(() => {

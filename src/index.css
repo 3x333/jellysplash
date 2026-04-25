@@ -1,0 +1,34 @@
+:root {
+  --bg-page: #101010;
+  --bg-surface: #1c1c1c;
+  --bg-elevated: #2d2d2d;
+  --border: #383838;
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --accent: #00a4dc;
+  --accent-hover: #0096c7;
+}
+
+[data-theme='light'] {
+  --bg-page: #f2f2f2;
+  --bg-surface: #ffffff;
+  --bg-elevated: #e8e8e8;
+  --border: #d0d0d0;
+  --text-primary: #101010;
+  --text-secondary: #666666;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+}

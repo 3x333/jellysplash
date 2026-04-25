@@ -25,6 +25,28 @@ function App() {
     setConfig((prev) => ({ ...prev, ...patch }));
   }, []);
 
+  const handleRandomise = useCallback(() => {
+    const rand = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
+    const overlayTypes: JellysplashConfig['overlayType'][] =
+      ['none', 'vignette', 'gradient', 'solid'];
+    const aspectRatios: (number | 'source')[] =
+      ['source', 0.667, 1.5, 1.333, 1.778, 1];
+    patchConfig({
+      tilt:            rand(-35, 35),
+      cardSize:        rand(150, 450),
+      gap:             rand(0, 30),
+      cornerRadius:    rand(0, 40),
+      jitter:          rand(0, 200),
+      brightness:      rand(70, 120),
+      saturation:      rand(70, 150),
+      overlayType:     overlayTypes[rand(0, overlayTypes.length - 1)],
+      overlayStrength: rand(20, 80),
+      aspectRatio:     aspectRatios[rand(0, aspectRatios.length - 1)],
+      seed:            rand(0, 99999),
+    });
+  }, [patchConfig]);
+
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('theme') as 'dark' | 'light') ?? 'dark';
   });
@@ -47,7 +69,7 @@ function App() {
             {' '}
             {theme === 'dark' ? 'Light mode' : 'Dark mode'}
           </button>
-          <button type="button" className="btn btn-ghost">
+          <button type="button" className="btn btn-ghost" onClick={handleRandomise}>
             Randomise
           </button>
           <button type="button" className="btn btn-primary" onClick={handleExport}>
@@ -55,7 +77,7 @@ function App() {
           </button>
         </div>
       </header>
-      <Sidebar config={config} onChange={patchConfig} images={images} onImagesChange={setImages} />
+      <Sidebar config={config} onChange={patchConfig} images={images} onImagesChange={setImages} onRandomise={handleRandomise} />
       <main className="app-canvas">
         <PreviewCanvas images={images} config={config} onExportReady={handleExportReady} />
       </main>

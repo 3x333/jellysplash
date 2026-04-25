@@ -1,145 +1,189 @@
-import { ControlRow, Slider } from './ControlRow'
-import type { JellysplashConfig, ImageItem } from '../types'
-import { ImageUploader } from './ImageUploader'
+import { ControlRow, Slider } from './ControlRow';
+import type { JellysplashConfig, ImageItem } from '../types';
+import { ImageUploader } from './ImageUploader';
 
 interface SidebarProps {
-config: JellysplashConfig
-onChange: (patch: Partial<JellysplashConfig>) => void
-images: ImageItem[]
-onImagesChange: (images: ImageItem[]) => void
+  config: JellysplashConfig;
+  onChange: (patch: Partial<JellysplashConfig>) => void;
+  images: ImageItem[];
+  onImagesChange: (images: ImageItem[]) => void;
 }
 
 export default function Sidebar({ config, onChange, images, onImagesChange }: SidebarProps) {
-const sizeValue = `${config.outputWidth}x${config.outputHeight}`
+  const sizeValue = `${config.outputWidth}x${config.outputHeight}`;
 
-return (
+  return (
     <aside className="app-sidebar">
-
-    <details open>
+      <details open>
         <summary>Import Options</summary>
         <div className="section-content">
-        <ImageUploader images={images} onChange={onImagesChange} />
-        <button type="button" className="import-btn">Sonarr</button>
-        <button type="button" className="import-btn">Radarr</button>
+          <ImageUploader images={images} onChange={onImagesChange} />
+          <button type="button" className="import-btn">
+            Sonarr
+          </button>
+          <button type="button" className="import-btn">
+            Radarr
+          </button>
         </div>
-    </details>
+      </details>
 
-    <details open>
+      <details open>
         <summary>Splashscreen Settings</summary>
         <div className="section-content">
-
-        <ControlRow label="Output size">
+          <ControlRow label="Output size">
             <select
-            value={sizeValue}
-            onChange={(e) => {
-                const [w, h] = e.target.value.split('x').map(Number)
-                onChange({ outputWidth: w, outputHeight: h })
-            }}
+              value={sizeValue}
+              onChange={(e) => {
+                const [w, h] = e.target.value.split('x').map(Number);
+                onChange({ outputWidth: w, outputHeight: h });
+              }}
             >
-            <option value="1920x1080">1920 × 1080</option>
-            <option value="2560x1440">2560 × 1440</option>
-            <option value="3840x2160">3840 × 2160</option>
+              <option value="1920x1080">1920 × 1080</option>
+              <option value="2560x1440">2560 × 1440</option>
+              <option value="3840x2160">3840 × 2160</option>
             </select>
-        </ControlRow>
+          </ControlRow>
 
-        <ControlRow label="Tilt angle">
-            <Slider value={config.tilt} min={-45} max={45} unit="°"
-            onChange={(v) => onChange({ tilt: v })} />
-        </ControlRow>
+          <ControlRow label="Tilt angle">
+            <Slider
+              value={config.tilt}
+              min={-45}
+              max={45}
+              unit="°"
+              onChange={(v) => onChange({ tilt: v })}
+            />
+          </ControlRow>
 
-        <ControlRow label="Columns" hint="Visible across width">
-            <Slider value={config.columns} min={1} max={30}
-            onChange={(v) => onChange({ columns: v })} />
-        </ControlRow>
+          <ControlRow label="Columns" hint="Visible across width">
+            <Slider
+              value={config.columns}
+              min={1}
+              max={30}
+              onChange={(v) => onChange({ columns: v })}
+            />
+          </ControlRow>
 
-        <ControlRow label="Rows" hint="Visible down height">
-            <Slider value={config.rows} min={1} max={20}
-            onChange={(v) => onChange({ rows: v })} />
-        </ControlRow>
+          <ControlRow label="Rows" hint="Visible down height">
+            <Slider value={config.rows} min={1} max={20} onChange={(v) => onChange({ rows: v })} />
+          </ControlRow>
 
-        <ControlRow label="Gap">
-            <Slider value={config.gap} min={0} max={100} unit="px"
-            onChange={(v) => onChange({ gap: v })} />
-        </ControlRow>
+          <ControlRow label="Gap">
+            <Slider
+              value={config.gap}
+              min={0}
+              max={100}
+              unit="px"
+              onChange={(v) => onChange({ gap: v })}
+            />
+          </ControlRow>
 
-        <ControlRow label="Card aspect ratio">
+          <ControlRow label="Card aspect ratio">
             <select
-            value={String(config.aspectRatio)}
-            onChange={(e) => {
-                const v = e.target.value
-                onChange({ aspectRatio: v === 'source' ? 'source' : Number(v) })
-            }}
+              value={String(config.aspectRatio)}
+              onChange={(e) => {
+                const v = e.target.value;
+                onChange({ aspectRatio: v === 'source' ? 'source' : Number(v) });
+              }}
             >
-            <option value="source">Source (auto)</option>
-            <option value="0.667">2:3 — Portrait</option>
-            <option value="1.5">3:2 — Landscape</option>
-            <option value="1.333">4:3 — Classic</option>
-            <option value="1.778">16:9 — Widescreen</option>
-            <option value="1">1:1 — Square</option>
+              <option value="source">Source (auto)</option>
+              <option value="0.667">2:3 — Portrait</option>
+              <option value="1.5">3:2 — Landscape</option>
+              <option value="1.333">4:3 — Classic</option>
+              <option value="1.778">16:9 — Widescreen</option>
+              <option value="1">1:1 — Square</option>
             </select>
-        </ControlRow>
+          </ControlRow>
 
-        <ControlRow label="Corner radius">
-            <Slider value={config.cornerRadius} min={0} max={100} unit="px"
-            onChange={(v) => onChange({ cornerRadius: v })} />
-        </ControlRow>
+          <ControlRow label="Corner radius">
+            <Slider
+              value={config.cornerRadius}
+              min={0}
+              max={100}
+              unit="px"
+              onChange={(v) => onChange({ cornerRadius: v })}
+            />
+          </ControlRow>
 
-        <ControlRow label="Row jitter" hint="Random x offset per row">
-            <Slider value={config.jitter} min={0} max={300} unit="px"
-            onChange={(v) => onChange({ jitter: v })} />
-        </ControlRow>
-
+          <ControlRow label="Row jitter" hint="Random x offset per row">
+            <Slider
+              value={config.jitter}
+              min={0}
+              max={300}
+              unit="px"
+              onChange={(v) => onChange({ jitter: v })}
+            />
+          </ControlRow>
         </div>
-    </details>
+      </details>
 
-    <details open>
+      <details open>
         <summary>Overlay & Background</summary>
         <div className="section-content">
+          <ControlRow label="Background colour">
+            <input
+              type="color"
+              value={config.bgColour}
+              onChange={(e) => onChange({ bgColour: e.target.value })}
+            />
+          </ControlRow>
 
-        <ControlRow label="Background colour">
-            <input type="color" value={config.bgColour}
-            onChange={(e) => onChange({ bgColour: e.target.value })} />
-        </ControlRow>
-
-        <ControlRow label="Overlay type">
+          <ControlRow label="Overlay type">
             <select
-            value={config.overlayType}
-            onChange={(e) => onChange({ overlayType: e.target.value as JellysplashConfig['overlayType'] })}
+              value={config.overlayType}
+              onChange={(e) =>
+                onChange({ overlayType: e.target.value as JellysplashConfig['overlayType'] })
+              }
             >
-            <option value="none">None</option>
-            <option value="vignette">Vignette</option>
-            <option value="gradient">Gradient</option>
-            <option value="solid">Solid tint</option>
+              <option value="none">None</option>
+              <option value="vignette">Vignette</option>
+              <option value="gradient">Gradient</option>
+              <option value="solid">Solid tint</option>
             </select>
-        </ControlRow>
+          </ControlRow>
 
-        {config.overlayType !== 'none' && (
+          {config.overlayType !== 'none' && (
             <ControlRow label="Overlay strength">
-            <Slider value={config.overlayStrength} min={0} max={100} unit="%"
-                onChange={(v) => onChange({ overlayStrength: v })} />
+              <Slider
+                value={config.overlayStrength}
+                min={0}
+                max={100}
+                unit="%"
+                onChange={(v) => onChange({ overlayStrength: v })}
+              />
             </ControlRow>
-        )}
+          )}
 
-        {config.overlayType === 'solid' && (
+          {config.overlayType === 'solid' && (
             <ControlRow label="Tint colour">
-            <input type="color" value={config.overlayColour}
-                onChange={(e) => onChange({ overlayColour: e.target.value })} />
+              <input
+                type="color"
+                value={config.overlayColour}
+                onChange={(e) => onChange({ overlayColour: e.target.value })}
+              />
             </ControlRow>
-        )}
+          )}
 
-        <ControlRow label="Brightness">
-            <Slider value={config.brightness} min={0} max={200} unit="%"
-            onChange={(v) => onChange({ brightness: v })} />
-        </ControlRow>
+          <ControlRow label="Brightness">
+            <Slider
+              value={config.brightness}
+              min={0}
+              max={200}
+              unit="%"
+              onChange={(v) => onChange({ brightness: v })}
+            />
+          </ControlRow>
 
-        <ControlRow label="Saturation">
-            <Slider value={config.saturation} min={0} max={200} unit="%"
-            onChange={(v) => onChange({ saturation: v })} />
-        </ControlRow>
-
+          <ControlRow label="Saturation">
+            <Slider
+              value={config.saturation}
+              min={0}
+              max={200}
+              unit="%"
+              onChange={(v) => onChange({ saturation: v })}
+            />
+          </ControlRow>
         </div>
-    </details>
-
+      </details>
     </aside>
-)
+  );
 }

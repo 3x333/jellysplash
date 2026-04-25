@@ -1,24 +1,27 @@
-import './App.css'
-import Sidebar from './components/Sidebar'
-import { useState, useCallback, useRef } from 'react'
-import { DEFAULT_CONFIG } from './types'
-import type { JellysplashConfig, ImageItem } from './types'
-import { PreviewCanvas } from './components/PreviewCanvas'
+import './App.css';
+import Sidebar from './components/Sidebar';
+import { useState, useCallback, useRef } from 'react';
+import { DEFAULT_CONFIG } from './types';
+import type { JellysplashConfig, ImageItem } from './types';
+import { PreviewCanvas } from './components/PreviewCanvas';
 
 function App() {
-  const [images, setImages] = useState<ImageItem[]>([])
-  const exportFnRef = useRef<() => void>(() => {})
+  const [images, setImages] = useState<ImageItem[]>([]);
+  const exportFnRef = useRef<() => void>(() => {});
   const handleExportReady = useCallback((fn: () => void) => {
-    exportFnRef.current = fn
-  }, [])
+    exportFnRef.current = fn;
+  }, []);
   const handleExport = useCallback(() => {
-    if (images.length === 0) { alert('Please load some images before exporting.'); return }
-    exportFnRef.current()
-  }, [images.length])
-  const [config, setConfig] = useState<JellysplashConfig>(DEFAULT_CONFIG)
+    if (images.length === 0) {
+      alert('Please load some images before exporting.');
+      return;
+    }
+    exportFnRef.current();
+  }, [images.length]);
+  const [config, setConfig] = useState<JellysplashConfig>(DEFAULT_CONFIG);
   const patchConfig = useCallback((patch: Partial<JellysplashConfig>) => {
-    setConfig(prev => ({ ...prev, ...patch }))
-  }, [])
+    setConfig((prev) => ({ ...prev, ...patch }));
+  }, []);
 
   return (
     <div className="app-layout">
@@ -37,7 +40,7 @@ function App() {
         <PreviewCanvas images={images} config={config} onExportReady={handleExportReady} />
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,16 +1,53 @@
+import { useRef } from 'react';
 import { ControlRow, Slider } from './ControlRow';
 import type { JellysplashConfig, ImageItem } from '../types';
 import { ImageUploader } from './ImageUploader';
+import { PRESETS } from '../presets';
 
 interface SidebarProps {
   config: JellysplashConfig;
   onChange: (patch: Partial<JellysplashConfig>) => void;
   images: ImageItem[];
   onImagesChange: (images: ImageItem[]) => void;
+  onRandomise: () => void;
 }
 
-export default function Sidebar({ config, onChange, images, onImagesChange }: SidebarProps) {
+export default function Sidebar({
+  config,
+  onChange,
+  images,
+  onImagesChange,
+  onRandomise,
+}: SidebarProps) {
   const sizeValue = `${config.outputWidth}x${config.outputHeight}`;
+  const importRef = useRef<HTMLInputElement>(null);
+
+  const exportConfig = () => {
+    const json = JSON.stringify(config, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'jellysplash-config.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target?.result as string);
+        onChange(parsed);
+      } catch {
+        alert('Invalid config file.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   return (
     <aside className="app-sidebar">
@@ -24,6 +61,46 @@ export default function Sidebar({ config, onChange, images, onImagesChange }: Si
           <button type="button" className="import-btn">
             Radarr
           </button>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Config</summary>
+        <div className="section-content">
+          <button type="button" className="import-btn" onClick={onRandomise}>
+            Randomise all settings
+          </button>
+          <ControlRow label="Load preset">
+            <select
+              value=""
+              onChange={(e) => {
+                const preset = PRESETS.find((p) => p.name === e.target.value);
+                if (preset) onChange(preset.config);
+              }}
+            >
+              <option value="" disabled>
+                Choose a preset…
+              </option>
+              {PRESETS.map((p) => (
+                <option key={p.name} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </ControlRow>
+          <button type="button" className="import-btn" onClick={exportConfig}>
+            Export config
+          </button>
+          <button type="button" className="import-btn" onClick={() => importRef.current?.click()}>
+            Import config
+          </button>
+          <input
+            ref={importRef}
+            type="file"
+            accept=".json"
+            style={{ display: 'none' }}
+            onChange={importConfig}
+          />
         </div>
       </details>
 
@@ -79,6 +156,16 @@ export default function Sidebar({ config, onChange, images, onImagesChange }: Si
               <option value="1.778">16:9 — Widescreen</option>
               <option value="1">1:1 — Square</option>
             </select>
+          </ControlRow>
+
+          <ControlRow label="Gap">
+            <Slider
+              value={config.gap}
+              min={0}
+              max={100}
+              unit="px"
+              onChange={(v) => onChange({ gap: v })}
+            />
           </ControlRow>
 
           <ControlRow label="Corner radius">
@@ -167,6 +254,22 @@ export default function Sidebar({ config, onChange, images, onImagesChange }: Si
               max={200}
               unit="%"
               onChange={(v) => onChange({ saturation: v })}
+            />
+          </ControlRow>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Seed</summary>
+        <div className="section-content">
+          <ControlRow label="Seed" hint="Same seed = same layout">
+            <input
+              type="number"
+              value={config.seed}
+              min={0}
+              max={99999}
+              onChange={(e) => onChange({ seed: Number(e.target.value) })}
+              className="seed-input"
             />
           </ControlRow>
         </div>

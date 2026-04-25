@@ -223,3 +223,18 @@ select {
 select:focus {
   border-color: var(--accent);
 }
+
+.seed-input {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.seed-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}

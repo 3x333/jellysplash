@@ -1,7 +1,16 @@
 import './App.css'
 import Sidebar from './components/Sidebar'
+import { useState, useCallback } from 'react'
+import { DEFAULT_CONFIG } from './types'
+import type { JellysplashConfig, ImageItem } from './types'
 
 function App() {
+  const [images, setImages] = useState<ImageItem[]>([])
+  const [config, setConfig] = useState<JellysplashConfig>(DEFAULT_CONFIG)
+  const patchConfig = useCallback((patch: Partial<JellysplashConfig>) => {
+    setConfig(prev => ({ ...prev, ...patch }))
+  }, [])
+
   return (
     <div className="app-layout">
       <header className="app-header">
@@ -12,7 +21,7 @@ function App() {
           <button type="button">Export</button>
         </div>
       </header>
-      <Sidebar />
+      <Sidebar config={config} onChange={patchConfig} images={images} onImagesChanges={setImages} />
       <main className="app-canvas">Canvas</main>
     </div>
   )

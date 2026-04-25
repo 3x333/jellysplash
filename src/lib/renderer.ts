@@ -9,7 +9,7 @@ export function drawSplash(
   config: JellysplashConfig,
 ): void {
   const {
-    columns,
+    cardSize,
     gap,
     tilt,
     cornerRadius,
@@ -24,66 +24,81 @@ export function drawSplash(
     seed,
   } = config;
 
-  // If aspectRatio is 'source', use average ratio of loaded images
-  const effectiveRatio: number =
-    aspectRatio === 'source'
-      ? images.reduce((sum, { img }) => sum + img.naturalWidth / img.naturalHeight, 0) /
-        images.length
-      : aspectRatio;
-
-  // 1. Derive card size from column count
-  const cardW = Math.floor((W - (columns - 1) * gap) / columns);
-  const cardH = Math.floor(cardW / effectiveRatio);
-
-  // 2. Background
   ctx.fillStyle = bgColour;
   ctx.fillRect(0, 0, W, H);
 
   if (images.length === 0) return;
 
-  // 3. Rotate canvas around centre
   ctx.save();
   ctx.translate(W / 2, H / 2);
   ctx.rotate((tilt * Math.PI) / 180);
 
   const diag = Math.ceil(Math.sqrt(W * W + H * H));
-  const numCols = Math.ceil(diag / (cardW + gap)) + 2;
-  const numRows = Math.ceil(diag / (cardH + gap)) + 2;
-
-  const originX = -Math.ceil(numCols / 2) * (cardW + gap);
-  const originY = -Math.ceil(numRows / 2) * (cardH + gap);
-
-  // 4. Shuffle images deterministically using the seed
   const shuffled = seededShuffle(images, makeRng(seed * 7 + 13));
   const rng = makeRng(seed);
   let imgIdx = 0;
 
   ctx.filter = `brightness(${brightness}%) saturate(${saturation}%)`;
 
-  // 5. Draw tiles
-  for (let row = 0; row < numRows; row++) {
-    const rowOffset = (rng() - 0.5) * jitter;
+  if (aspectRatio === 'source') {
+    // Fixed card height, variable width per image's natural ratio
+    const cardH = cardSize;
+    const numRows = Math.ceil(diag / (cardH + gap)) + 2;
+    const originY = -Math.ceil(numRows / 2) * (cardH + gap);
 
-    for (let col = 0; col < numCols; col++) {
-      const x = originX + col * (cardW + gap) + rowOffset;
+    for (let row = 0; row < numRows; row++) {
+      const rowOffset = (rng() - 0.5) * jitter;
       const y = originY + row * (cardH + gap);
-      const { img } = shuffled[imgIdx % shuffled.length];
-      imgIdx++;
+      let x = -(diag + cardSize * 4) / 2 + rowOffset;
 
-      ctx.save();
-      if (cornerRadius > 0) {
-        roundedRectPath(ctx, x, y, cardW, cardH, cornerRadius);
-        ctx.clip();
+      while (x < (diag + cardSize * 4) / 2) {
+        const { img } = shuffled[imgIdx % shuffled.length];
+        imgIdx++;
+        const cardW = Math.floor(cardH * (img.naturalWidth / img.naturalHeight));
+
+        ctx.save();
+        if (cornerRadius > 0) {
+          roundedRectPath(ctx, x, y, cardW, cardH, cornerRadius);
+          ctx.clip();
+        }
+        drawImageCover(ctx, img, x, y, cardW, cardH);
+        ctx.restore();
+        x += cardW + gap;
       }
-      drawImageCover(ctx, img, x, y, cardW, cardH);
-      ctx.restore();
+    }
+  } else {
+    // Fixed grid — cardSize is the card width
+    const cardW = cardSize;
+    const cardH = Math.floor(cardW / aspectRatio);
+    const numCols = Math.ceil(diag / (cardW + gap)) + 2;
+    const numRows = Math.ceil(diag / (cardH + gap)) + 2;
+    const originX = -Math.ceil(numCols / 2) * (cardW + gap);
+    const originY = -Math.ceil(numRows / 2) * (cardH + gap);
+
+    for (let row = 0; row < numRows; row++) {
+      const rowOffset = (rng() - 0.5) * jitter;
+
+      for (let col = 0; col < numCols; col++) {
+        const x = originX + col * (cardW + gap) + rowOffset;
+        const y = originY + row * (cardH + gap);
+        const { img } = shuffled[imgIdx % shuffled.length];
+        imgIdx++;
+
+        ctx.save();
+        if (cornerRadius > 0) {
+          roundedRectPath(ctx, x, y, cardW, cardH, cornerRadius);
+          ctx.clip();
+        }
+        drawImageCover(ctx, img, x, y, cardW, cardH);
+        ctx.restore();
+      }
     }
   }
 
   ctx.filter = 'none';
   ctx.restore();
 
-  // 6. Overlay
+  // Overlay
   const alpha = overlayStrength / 100;
 
   if (overlayType === 'vignette') {

@@ -8,8 +8,7 @@ export interface JellysplashConfig {
   outputWidth: number;
   outputHeight: number;
 
-  columns: number;
-  rows: number;
+  cardSize: number;
 
   tilt: number;
   gap: number;
@@ -30,8 +29,7 @@ export interface JellysplashConfig {
 export const DEFAULT_CONFIG: JellysplashConfig = {
   outputWidth: 1920,
   outputHeight: 1080,
-  columns: 10,
-  rows: 5,
+  cardSize: 300,
   tilt: -15,
   gap: 8,
   cornerRadius: 8,

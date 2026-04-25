@@ -54,26 +54,13 @@ export default function Sidebar({ config, onChange, images, onImagesChange }: Si
             />
           </ControlRow>
 
-          <ControlRow label="Columns" hint="Visible across width">
+          <ControlRow label="Card size" hint="Width of each card in px">
             <Slider
-              value={config.columns}
-              min={1}
-              max={30}
-              onChange={(v) => onChange({ columns: v })}
-            />
-          </ControlRow>
-
-          <ControlRow label="Rows" hint="Visible down height">
-            <Slider value={config.rows} min={1} max={20} onChange={(v) => onChange({ rows: v })} />
-          </ControlRow>
-
-          <ControlRow label="Gap">
-            <Slider
-              value={config.gap}
-              min={0}
-              max={100}
+              value={config.cardSize}
+              min={50}
+              max={600}
               unit="px"
-              onChange={(v) => onChange({ gap: v })}
+              onChange={(v) => onChange({ cardSize: v })}
             />
           </ControlRow>
 

@@ -21,7 +21,7 @@ function App() {
           <button type="button">Export</button>
         </div>
       </header>
-      <Sidebar config={config} onChange={patchConfig} images={images} onImagesChanges={setImages} />
+      <Sidebar config={config} onChange={patchConfig} images={images} onImagesChange={setImages} />
       <main className="app-canvas">Canvas</main>
     </div>
   )

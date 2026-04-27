@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { ControlRow, Slider } from './ControlRow';
 import { ColorField } from './ColorField';
@@ -13,6 +13,7 @@ interface SidebarProps {
   images: ImageItem[];
   onImagesChange: Dispatch<SetStateAction<ImageItem[]>>;
   onRandomise: () => void;
+  onResetAll: () => void;
 }
 
 export default function Sidebar({
@@ -21,11 +22,18 @@ export default function Sidebar({
   images,
   onImagesChange,
   onRandomise,
+  onResetAll,
 }: SidebarProps) {
   const sizeValue = `${config.outputWidth}x${config.outputHeight}`;
   const importRef = useRef<HTMLInputElement>(null);
-  const resetProp = <K extends keyof JellysplashConfig>(key: K) => onChange({ [key]: DEFAULT_CONFIG[key] });
-  const canResetProp = <K extends keyof JellysplashConfig>(key: K) => config[key] !== DEFAULT_CONFIG[key];
+  const resetProp = <K extends keyof JellysplashConfig>(key: K) =>
+    onChange({ [key]: DEFAULT_CONFIG[key] });
+  const canResetProp = <K extends keyof JellysplashConfig>(key: K) =>
+    config[key] !== DEFAULT_CONFIG[key];
+  const activePresetName = useMemo(() => {
+    const match = PRESETS.find((preset) => matchesPreset(config, preset.config));
+    return match?.name ?? '__custom__';
+  }, [config]);
 
   const exportConfig = () => {
     const json = JSON.stringify(config, null, 2);
@@ -75,16 +83,19 @@ export default function Sidebar({
           <button type="button" className="import-btn" onClick={onRandomise}>
             Randomise all settings
           </button>
+          <button type="button" className="import-btn" onClick={onResetAll}>
+            Reset all settings
+          </button>
           <ControlRow label="Load preset">
             <select
-              value=""
+              value={activePresetName}
               onChange={(e) => {
                 const preset = PRESETS.find((p) => p.name === e.target.value);
-                if (preset) onChange(preset.config);
+                if (preset) onChange({ ...DEFAULT_CONFIG, ...preset.config });
               }}
             >
-              <option value="" disabled>
-                Choose a preset…
+              <option value="__custom__" disabled>
+                Custom
               </option>
               {PRESETS.map((p) => (
                 <option key={p.name} value={p.name}>
@@ -114,7 +125,12 @@ export default function Sidebar({
         <div className="section-content">
           <ControlRow
             label="Output size"
-            onReset={() => onChange({ outputWidth: DEFAULT_CONFIG.outputWidth, outputHeight: DEFAULT_CONFIG.outputHeight })}
+            onReset={() =>
+              onChange({
+                outputWidth: DEFAULT_CONFIG.outputWidth,
+                outputHeight: DEFAULT_CONFIG.outputHeight,
+              })
+            }
             canReset={
               config.outputWidth !== DEFAULT_CONFIG.outputWidth ||
               config.outputHeight !== DEFAULT_CONFIG.outputHeight
@@ -133,7 +149,11 @@ export default function Sidebar({
             </select>
           </ControlRow>
 
-          <ControlRow label="Tilt angle" onReset={() => resetProp('tilt')} canReset={canResetProp('tilt')}>
+          <ControlRow
+            label="Tilt angle"
+            onReset={() => resetProp('tilt')}
+            canReset={canResetProp('tilt')}
+          >
             <Slider
               value={config.tilt}
               min={-45}
@@ -187,7 +207,6 @@ export default function Sidebar({
               <option value="source">Source (auto)</option>
               <option value="0.667">2:3 — Portrait</option>
               <option value="1.5">3:2 — Landscape</option>
-              <option value="1.333">4:3 — Classic</option>
               <option value="1.778">16:9 — Widescreen</option>
               <option value="1">1:1 — Square</option>
             </select>
@@ -242,7 +261,10 @@ export default function Sidebar({
             onReset={() => resetProp('bgColour')}
             canReset={canResetProp('bgColour')}
           >
-            <ColorField value={config.bgColour} onChange={(value) => onChange({ bgColour: value })} />
+            <ColorField
+              value={config.bgColour}
+              onChange={(value) => onChange({ bgColour: value })}
+            />
           </ControlRow>
 
           <ControlRow
@@ -423,4 +445,14 @@ function clamp(value: number, min: number, max: number): number {
 
 function isHexColour(value: string): boolean {
   return /^#[0-9a-fA-F]{6}$/.test(value);
+}
+
+function matchesPreset(
+  config: JellysplashConfig,
+  presetConfig: Partial<JellysplashConfig>,
+): boolean {
+  const resolvedPreset = { ...DEFAULT_CONFIG, ...presetConfig };
+  const keys = Object.keys(resolvedPreset) as Array<keyof JellysplashConfig>;
+
+  return keys.every((key) => config[key] === resolvedPreset[key]);
 }

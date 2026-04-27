@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { DEFAULT_CONFIG } from './types';
 import type { JellysplashConfig, ImageItem } from './types';
 import { PreviewCanvas } from './components/PreviewCanvas';
+import { PRESETS } from './presets';
 
 function App() {
   const [images, setImages] = useState<ImageItem[]>([]);
@@ -20,7 +21,7 @@ function App() {
     exportFnRef.current();
   }, [images.length]);
 
-  const [config, setConfig] = useState<JellysplashConfig>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<JellysplashConfig>(getDefaultAppConfig());
   const patchConfig = useCallback((patch: Partial<JellysplashConfig>) => {
     setConfig((prev) => ({ ...prev, ...patch }));
   }, []);
@@ -34,7 +35,7 @@ function App() {
       'solid',
     ];
     const aspectRatios: (number | 'source')[] = ['source', 0.667, 1.5, 1.333, 1.778, 1];
-    patchConfig({
+    const nextPatch: Partial<JellysplashConfig> = {
       tilt: rand(-35, 35),
       cardSize: rand(150, 450),
       gap: rand(0, 30),
@@ -46,8 +47,13 @@ function App() {
       overlayStrength: rand(20, 80),
       aspectRatio: aspectRatios[rand(0, aspectRatios.length - 1)],
       seed: rand(0, 99999),
-    });
+    };
+    patchConfig(nextPatch);
   }, [patchConfig]);
+
+  const handleResetAll = useCallback(() => {
+    setConfig(getDefaultAppConfig());
+  }, []);
 
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('theme') as 'dark' | 'light') ?? 'dark';
@@ -82,6 +88,7 @@ function App() {
         images={images}
         onImagesChange={setImages}
         onRandomise={handleRandomise}
+        onResetAll={handleResetAll}
       />
       <main className="app-canvas">
         <PreviewCanvas images={images} config={config} onExportReady={handleExportReady} />
@@ -91,3 +98,8 @@ function App() {
 }
 
 export default App;
+
+function getDefaultAppConfig(): JellysplashConfig {
+  const defaultPreset = PRESETS.find((preset) => preset.name === 'Default');
+  return { ...DEFAULT_CONFIG, ...defaultPreset?.config };
+}

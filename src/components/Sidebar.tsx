@@ -130,6 +130,16 @@ export default function Sidebar({
               onChange={(v) => onChange({ tilt: v })}
             />
           </ControlRow>
+          <ControlRow label="Perspective">
+            <Slider
+              value={config.perspective}
+              min={-0.5}
+              max={0.5}
+              step={0.01}
+              unit="°"
+              onChange={(v) => onChange({ perspective: v })}
+            />
+          </ControlRow>
 
           <ControlRow label="Card size" hint="Width of each card in px">
             <Slider

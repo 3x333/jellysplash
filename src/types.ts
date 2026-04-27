@@ -11,6 +11,7 @@ export interface JellysplashConfig {
   cardSize: number;
 
   tilt: number;
+  perspective: number;
   gap: number;
   cornerRadius: number;
   aspectRatio: number | 'source';
@@ -31,6 +32,7 @@ export const DEFAULT_CONFIG: JellysplashConfig = {
   outputHeight: 1080,
   cardSize: 300,
   tilt: -15,
+  perspective: 0,
   gap: 8,
   cornerRadius: 8,
   aspectRatio: 'source',

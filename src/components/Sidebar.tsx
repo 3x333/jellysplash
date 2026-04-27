@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { ControlRow, Slider } from './ControlRow';
+import { ColorField } from './ColorField';
+import { DEFAULT_CONFIG } from '../types';
 import type { JellysplashConfig, ImageItem } from '../types';
 import { ImageUploader } from './ImageUploader';
 import { PRESETS } from '../presets';
@@ -22,6 +24,8 @@ export default function Sidebar({
 }: SidebarProps) {
   const sizeValue = `${config.outputWidth}x${config.outputHeight}`;
   const importRef = useRef<HTMLInputElement>(null);
+  const resetProp = <K extends keyof JellysplashConfig>(key: K) => onChange({ [key]: DEFAULT_CONFIG[key] });
+  const canResetProp = <K extends keyof JellysplashConfig>(key: K) => config[key] !== DEFAULT_CONFIG[key];
 
   const exportConfig = () => {
     const json = JSON.stringify(config, null, 2);
@@ -108,7 +112,14 @@ export default function Sidebar({
       <details open>
         <summary>Splashscreen Settings</summary>
         <div className="section-content">
-          <ControlRow label="Output size">
+          <ControlRow
+            label="Output size"
+            onReset={() => onChange({ outputWidth: DEFAULT_CONFIG.outputWidth, outputHeight: DEFAULT_CONFIG.outputHeight })}
+            canReset={
+              config.outputWidth !== DEFAULT_CONFIG.outputWidth ||
+              config.outputHeight !== DEFAULT_CONFIG.outputHeight
+            }
+          >
             <select
               value={sizeValue}
               onChange={(e) => {
@@ -122,7 +133,7 @@ export default function Sidebar({
             </select>
           </ControlRow>
 
-          <ControlRow label="Tilt angle">
+          <ControlRow label="Tilt angle" onReset={() => resetProp('tilt')} canReset={canResetProp('tilt')}>
             <Slider
               value={config.tilt}
               min={-45}
@@ -131,7 +142,11 @@ export default function Sidebar({
               onChange={(v) => onChange({ tilt: v })}
             />
           </ControlRow>
-          <ControlRow label="Perspective">
+          <ControlRow
+            label="Perspective"
+            onReset={() => resetProp('perspective')}
+            canReset={canResetProp('perspective')}
+          >
             <Slider
               value={config.perspective}
               min={-0.5}
@@ -142,7 +157,12 @@ export default function Sidebar({
             />
           </ControlRow>
 
-          <ControlRow label="Card size" hint="Width of each card in px">
+          <ControlRow
+            label="Card size"
+            hint="Width of each card in px"
+            onReset={() => resetProp('cardSize')}
+            canReset={canResetProp('cardSize')}
+          >
             <Slider
               value={config.cardSize}
               min={50}
@@ -152,7 +172,11 @@ export default function Sidebar({
             />
           </ControlRow>
 
-          <ControlRow label="Card aspect ratio">
+          <ControlRow
+            label="Card aspect ratio"
+            onReset={() => resetProp('aspectRatio')}
+            canReset={canResetProp('aspectRatio')}
+          >
             <select
               value={String(config.aspectRatio)}
               onChange={(e) => {
@@ -169,7 +193,7 @@ export default function Sidebar({
             </select>
           </ControlRow>
 
-          <ControlRow label="Gap">
+          <ControlRow label="Gap" onReset={() => resetProp('gap')} canReset={canResetProp('gap')}>
             <Slider
               value={config.gap}
               min={0}
@@ -179,7 +203,11 @@ export default function Sidebar({
             />
           </ControlRow>
 
-          <ControlRow label="Corner radius">
+          <ControlRow
+            label="Corner radius"
+            onReset={() => resetProp('cornerRadius')}
+            canReset={canResetProp('cornerRadius')}
+          >
             <Slider
               value={config.cornerRadius}
               min={0}
@@ -189,7 +217,12 @@ export default function Sidebar({
             />
           </ControlRow>
 
-          <ControlRow label="Row jitter" hint="Random x offset per row">
+          <ControlRow
+            label="Row jitter"
+            hint="Random x offset per row"
+            onReset={() => resetProp('jitter')}
+            canReset={canResetProp('jitter')}
+          >
             <Slider
               value={config.jitter}
               min={0}
@@ -204,15 +237,19 @@ export default function Sidebar({
       <details open>
         <summary>Overlay & Background</summary>
         <div className="section-content">
-          <ControlRow label="Background colour">
-            <input
-              type="color"
-              value={config.bgColour}
-              onChange={(e) => onChange({ bgColour: e.target.value })}
-            />
+          <ControlRow
+            label="Background colour"
+            onReset={() => resetProp('bgColour')}
+            canReset={canResetProp('bgColour')}
+          >
+            <ColorField value={config.bgColour} onChange={(value) => onChange({ bgColour: value })} />
           </ControlRow>
 
-          <ControlRow label="Overlay type">
+          <ControlRow
+            label="Overlay type"
+            onReset={() => resetProp('overlayType')}
+            canReset={canResetProp('overlayType')}
+          >
             <select
               value={config.overlayType}
               onChange={(e) =>
@@ -227,7 +264,11 @@ export default function Sidebar({
           </ControlRow>
 
           {config.overlayType !== 'none' && (
-            <ControlRow label="Overlay strength">
+            <ControlRow
+              label="Overlay strength"
+              onReset={() => resetProp('overlayStrength')}
+              canReset={canResetProp('overlayStrength')}
+            >
               <Slider
                 value={config.overlayStrength}
                 min={0}
@@ -239,16 +280,23 @@ export default function Sidebar({
           )}
 
           {config.overlayType === 'solid' && (
-            <ControlRow label="Tint colour">
-              <input
-                type="color"
+            <ControlRow
+              label="Tint colour"
+              onReset={() => resetProp('overlayColour')}
+              canReset={canResetProp('overlayColour')}
+            >
+              <ColorField
                 value={config.overlayColour}
-                onChange={(e) => onChange({ overlayColour: e.target.value })}
+                onChange={(value) => onChange({ overlayColour: value })}
               />
             </ControlRow>
           )}
 
-          <ControlRow label="Brightness">
+          <ControlRow
+            label="Brightness"
+            onReset={() => resetProp('brightness')}
+            canReset={canResetProp('brightness')}
+          >
             <Slider
               value={config.brightness}
               min={0}
@@ -258,7 +306,11 @@ export default function Sidebar({
             />
           </ControlRow>
 
-          <ControlRow label="Saturation">
+          <ControlRow
+            label="Saturation"
+            onReset={() => resetProp('saturation')}
+            canReset={canResetProp('saturation')}
+          >
             <Slider
               value={config.saturation}
               min={0}
@@ -273,7 +325,12 @@ export default function Sidebar({
       <details open>
         <summary>Seed</summary>
         <div className="section-content">
-          <ControlRow label="Seed" hint="Same seed = same layout">
+          <ControlRow
+            label="Seed"
+            hint="Same seed = same layout"
+            onReset={() => resetProp('seed')}
+            canReset={canResetProp('seed')}
+          >
             <input
               type="number"
               value={config.seed}

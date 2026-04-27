@@ -1,7 +1,6 @@
 import type { ImageItem, JellysplashConfig } from '../types';
 import { makeRng, seededShuffle } from './rng';
 
-<<<<<<< HEAD
 interface ImageMetrics {
   naturalWidth: number;
   naturalHeight: number;
@@ -24,8 +23,6 @@ const imageMetricsCache = new WeakMap<HTMLImageElement, ImageMetrics>();
 const shuffledImagesCache = new WeakMap<ImageItem[], Map<number, ImageItem[]>>();
 const solidOverlayCache = new Map<string, string>();
 
-=======
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
 export function drawSplash(
   ctx: CanvasRenderingContext2D,
   W: number,
@@ -33,7 +30,6 @@ export function drawSplash(
   images: ImageItem[],
   config: JellysplashConfig,
 ): void {
-<<<<<<< HEAD
   const { tilt, perspective, bgColour } = config;
   const tiltRad = (tilt * Math.PI) / 180;
   const diag = Math.ceil(Math.sqrt(W * W + H * H));
@@ -43,30 +39,12 @@ export function drawSplash(
   );
   const minScale = perspective !== 0 ? 1 - Math.abs(perspective) : 1;
   const srcH = Math.ceil(coverH / minScale);
-=======
-  const {
-    cardSize,
-    gap,
-    tilt,
-    cornerRadius,
-    aspectRatio,
-    jitter,
-    brightness,
-    saturation,
-    bgColour,
-    overlayType,
-    overlayStrength,
-    overlayColour,
-    seed,
-  } = config;
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
 
   ctx.fillStyle = bgColour;
   ctx.fillRect(0, 0, W, H);
 
   if (images.length === 0) return;
 
-<<<<<<< HEAD
   // Render cards flat (no tilt) into a diagonal-wide offscreen so rotation has coverage
   const off = sharedOffscreenCanvas;
   const offCtx = sharedOffscreenCtx;
@@ -106,24 +84,12 @@ function drawCards(
   ctx.translate(W / 2, H / 2);
 
   const shuffled = getShuffledImages(images, seed);
-=======
-  ctx.save();
-  ctx.translate(W / 2, H / 2);
-  ctx.rotate((tilt * Math.PI) / 180);
-
-  const diag = Math.ceil(Math.sqrt(W * W + H * H));
-  const shuffled = seededShuffle(images, makeRng(seed * 7 + 13));
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
   const rng = makeRng(seed);
   let imgIdx = 0;
 
   ctx.filter = `brightness(${brightness}%) saturate(${saturation}%)`;
 
   if (aspectRatio === 'source') {
-<<<<<<< HEAD
-=======
-    // Fixed card height, variable width per image's natural ratio
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
     const cardH = cardSize;
     const numRows = Math.ceil(diag / (cardH + gap)) + 2;
     const originY = -Math.ceil(numRows / 2) * (cardH + gap);
@@ -136,7 +102,6 @@ function drawCards(
       while (x < (diag + cardSize * 4) / 2) {
         const { img } = shuffled[imgIdx % shuffled.length];
         imgIdx++;
-<<<<<<< HEAD
         const cardW = Math.floor(cardH * getImageMetrics(img).aspect);
 
         if (hasRoundedCorners) {
@@ -144,29 +109,12 @@ function drawCards(
         } else {
           drawImageCover(ctx, img, x, y, cardW, cardH);
         }
-=======
-        const cardW = Math.floor(cardH * (img.naturalWidth / img.naturalHeight));
-
-        ctx.save();
-        if (cornerRadius > 0) {
-          roundedRectPath(ctx, x, y, cardW, cardH, cornerRadius);
-          ctx.clip();
-        }
-        drawImageCover(ctx, img, x, y, cardW, cardH);
-        ctx.restore();
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
         x += cardW + gap;
       }
     }
   } else {
-<<<<<<< HEAD
     const cardW = cardSize;
     const cardH = Math.floor(cardW / (aspectRatio as number));
-=======
-    // Fixed grid — cardSize is the card width
-    const cardW = cardSize;
-    const cardH = Math.floor(cardW / aspectRatio);
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
     const numCols = Math.ceil(diag / (cardW + gap)) + 2;
     const numRows = Math.ceil(diag / (cardH + gap)) + 2;
     const originX = -Math.ceil(numCols / 2) * (cardW + gap);
@@ -181,28 +129,17 @@ function drawCards(
         const { img } = shuffled[imgIdx % shuffled.length];
         imgIdx++;
 
-<<<<<<< HEAD
         if (hasRoundedCorners) {
           drawRoundedImage(ctx, img, x, y, cardW, cardH, cornerRadius, getCoverCrop(img, cardW / cardH));
         } else {
           drawImageCoverWithCrop(ctx, img, getCoverCrop(img, cardW / cardH), x, y, cardW, cardH);
         }
-=======
-        ctx.save();
-        if (cornerRadius > 0) {
-          roundedRectPath(ctx, x, y, cardW, cardH, cornerRadius);
-          ctx.clip();
-        }
-        drawImageCover(ctx, img, x, y, cardW, cardH);
-        ctx.restore();
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
       }
     }
   }
 
   ctx.filter = 'none';
   ctx.restore();
-<<<<<<< HEAD
 }
 
 function drawOverlay(
@@ -212,10 +149,6 @@ function drawOverlay(
   config: JellysplashConfig,
 ): void {
   const { overlayType, overlayStrength, overlayColour } = config;
-=======
-
-  // Overlay
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
   const alpha = overlayStrength / 100;
 
   if (overlayType === 'vignette') {
@@ -232,19 +165,11 @@ function drawOverlay(
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
   } else if (overlayType === 'solid') {
-<<<<<<< HEAD
     ctx.fillStyle = getSolidOverlayColour(overlayColour, alpha);
-=======
-    const r = parseInt(overlayColour.slice(1, 3), 16);
-    const g = parseInt(overlayColour.slice(3, 5), 16);
-    const b = parseInt(overlayColour.slice(5, 7), 16);
-    ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
     ctx.fillRect(0, 0, W, H);
   }
 }
 
-<<<<<<< HEAD
 // Draws `src` as a perspective warp, centred at (0,0) in `dst`'s current
 // transform. We render into a narrow-column intermediate so there is no triangle
 // seam and the destination only composites smooth vertical spans.
@@ -305,8 +230,6 @@ function applyPerspective(
   );
 }
 
-=======
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
 function roundedRectPath(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -337,7 +260,6 @@ function drawImageCover(
   w: number,
   h: number,
 ): void {
-<<<<<<< HEAD
   drawImageCoverWithCrop(ctx, img, getCoverCrop(img, w / h), x, y, w, h);
 }
 
@@ -445,22 +367,4 @@ function getSolidOverlayColour(overlayColour: string, alpha: number): string {
 
 function perspectiveScale(perspective: number, t: number): number {
   return perspective < 0 ? 1 + perspective * (1 - t) : 1 - perspective * t;
-=======
-  const iAspect = img.naturalWidth / img.naturalHeight;
-  const cAspect = w / h;
-  let sx = 0,
-    sy = 0,
-    sw = img.naturalWidth,
-    sh = img.naturalHeight;
-
-  if (iAspect > cAspect) {
-    sw = img.naturalHeight * cAspect;
-    sx = (img.naturalWidth - sw) / 2;
-  } else {
-    sh = img.naturalWidth / cAspect;
-    sy = (img.naturalHeight - sh) / 2;
-  }
-
-  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
->>>>>>> f012609018e7c62d8c02622f2293d2f433f3e5bc
 }

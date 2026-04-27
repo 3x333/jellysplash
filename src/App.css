@@ -115,6 +115,7 @@
 }
 
 .canvas-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,6 +132,64 @@
 .canvas-preview {
   display: block;
   box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5);
+}
+
+.benchmark-panel {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  width: min(320px, calc(100% - 2rem));
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.benchmark-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.benchmark-panel__meta {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.benchmark-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+.benchmark-sample {
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+
+.benchmark-sample__title {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.benchmark-sample__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .btn {
@@ -165,6 +224,11 @@
 .btn-ghost:hover {
   color: var(--text-primary);
   border-color: var(--text-secondary);
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.55;
 }
 
 .app-header div {

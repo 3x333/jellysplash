@@ -39,6 +39,9 @@ export function drawSplash(
   );
   const minScale = perspective !== 0 ? 1 - Math.abs(perspective) : 1;
   const srcH = Math.ceil(coverH / minScale);
+  const offscreenScale = getPerspectiveOversample(diag, srcH, perspective);
+  const offW = Math.max(1, Math.ceil(diag * offscreenScale));
+  const offH = Math.max(1, Math.ceil(srcH * offscreenScale));
 
   ctx.fillStyle = bgColour;
   ctx.fillRect(0, 0, W, H);
@@ -48,12 +51,16 @@ export function drawSplash(
   // Render cards flat (no tilt) into a diagonal-wide offscreen so rotation has coverage
   const off = sharedOffscreenCanvas;
   const offCtx = sharedOffscreenCtx;
-  resizeCanvas(off, diag, srcH);
+  resizeCanvas(off, offW, offH);
+  offCtx.setTransform(1, 0, 0, 1, 0, 0);
   offCtx.imageSmoothingEnabled = true;
   offCtx.imageSmoothingQuality = 'high';
+  offCtx.clearRect(0, 0, offW, offH);
+  offCtx.setTransform(offscreenScale, 0, 0, offscreenScale, 0, 0);
   offCtx.fillStyle = bgColour;
   offCtx.fillRect(0, 0, diag, srcH);
   drawCards(offCtx, diag, srcH, diag, images, config);
+  offCtx.setTransform(1, 0, 0, 1, 0, 0);
 
   // Translate to canvas centre, rotate by tilt, then apply perspective strips.
   // The strips are drawn centred at (0,0) in the rotated space so the content
@@ -367,4 +374,16 @@ function getSolidOverlayColour(overlayColour: string, alpha: number): string {
 
 function perspectiveScale(perspective: number, t: number): number {
   return perspective < 0 ? 1 + perspective * (1 - t) : 1 - perspective * t;
+}
+
+function getPerspectiveOversample(srcW: number, srcH: number, perspective: number): number {
+  if (Math.abs(perspective) < 0.001) return 1;
+
+  const strength = Math.min(1, Math.abs(perspective));
+  const preferredScale = 1 + strength * 0.35;
+  const maxPixels = 5_500_000;
+  const area = srcW * srcH;
+  const cappedScale = Math.sqrt(maxPixels / Math.max(1, area));
+
+  return Math.max(1, Math.min(preferredScale, cappedScale));
 }

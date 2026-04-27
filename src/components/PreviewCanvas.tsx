@@ -20,6 +20,10 @@ export function PreviewCanvas({ images, config, onExportReady }: PreviewCanvasPr
   }, [exportPng, onExportReady]);
 
   useEffect(() => {
+    setBenchmarkReport(null);
+  }, [images, config]);
+
+  useEffect(() => {
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
     if (!wrap || !canvas) return;

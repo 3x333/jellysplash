@@ -1,9 +1,10 @@
 import { useRef } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import type { ImageItem } from '../types';
 
 interface ImageUploaderProps {
   images: ImageItem[];
-  onChange: (images: ImageItem[]) => void;
+  onChange: Dispatch<SetStateAction<ImageItem[]>>;
 }
 
 export function ImageUploader({ images, onChange }: ImageUploaderProps) {
@@ -16,16 +17,25 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
 
     const promises = incoming.map(
       (file) =>
-        new Promise<ImageItem>((resolve) => {
+        new Promise<ImageItem | null>((resolve) => {
           const url = URL.createObjectURL(file);
           const img = new Image();
-          img.onload = () => resolve({ img, name: file.name, url });
+          img.onload = () => {
+            resolve({ img, name: file.name, url });
+            URL.revokeObjectURL(url);
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve(null);
+          };
           img.src = url;
         }),
     );
 
     Promise.all(promises).then((newItems) => {
-      onChange([...images, ...newItems]);
+      const validItems = newItems.filter((item): item is ImageItem => item !== null);
+      if (validItems.length === 0) return;
+      onChange((prev) => [...prev, ...validItems]);
     });
   };
 

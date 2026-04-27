@@ -31,8 +31,12 @@ export function useSplashRenderer({ images, config }: UseSplashRendererOptions) 
 
   const drawToCanvas = useCallback(
     (canvas: HTMLCanvasElement, W: number, H: number, forceFlush = false) => {
-      canvas.width = W;
-      canvas.height = H;
+      if (canvas.width !== W) {
+        canvas.width = W;
+      }
+      if (canvas.height !== H) {
+        canvas.height = H;
+      }
       const ctx = canvas.getContext('2d');
       if (!ctx) return null;
       const t0 = performance.now();

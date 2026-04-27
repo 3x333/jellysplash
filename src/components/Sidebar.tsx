@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { ControlRow, Slider } from './ControlRow';
 import type { JellysplashConfig, ImageItem } from '../types';
 import { ImageUploader } from './ImageUploader';
@@ -8,7 +9,7 @@ interface SidebarProps {
   config: JellysplashConfig;
   onChange: (patch: Partial<JellysplashConfig>) => void;
   images: ImageItem[];
-  onImagesChange: (images: ImageItem[]) => void;
+  onImagesChange: Dispatch<SetStateAction<ImageItem[]>>;
   onRandomise: () => void;
 }
 
@@ -40,7 +41,7 @@ export default function Sidebar({
     reader.onload = (ev) => {
       try {
         const parsed = JSON.parse(ev.target?.result as string);
-        onChange(parsed);
+        onChange(sanitizeConfigPatch(parsed));
       } catch {
         alert('Invalid config file.');
       }
@@ -55,10 +56,10 @@ export default function Sidebar({
         <summary>Import Options</summary>
         <div className="section-content">
           <ImageUploader images={images} onChange={onImagesChange} />
-          <button type="button" className="import-btn">
+          <button type="button" className="import-btn" disabled>
             Sonarr
           </button>
-          <button type="button" className="import-btn">
+          <button type="button" className="import-btn" disabled>
             Radarr
           </button>
         </div>
@@ -286,4 +287,83 @@ export default function Sidebar({
       </details>
     </aside>
   );
+}
+
+function sanitizeConfigPatch(input: unknown): Partial<JellysplashConfig> {
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid config');
+  }
+
+  const raw = input as Record<string, unknown>;
+  const patch: Partial<JellysplashConfig> = {};
+
+  if (typeof raw.outputWidth === 'number' && Number.isFinite(raw.outputWidth)) {
+    patch.outputWidth = clamp(Math.round(raw.outputWidth), 320, 7680);
+  }
+  if (typeof raw.outputHeight === 'number' && Number.isFinite(raw.outputHeight)) {
+    patch.outputHeight = clamp(Math.round(raw.outputHeight), 320, 4320);
+  }
+  if (typeof raw.cardSize === 'number' && Number.isFinite(raw.cardSize)) {
+    patch.cardSize = clamp(Math.round(raw.cardSize), 50, 600);
+  }
+  if (typeof raw.tilt === 'number' && Number.isFinite(raw.tilt)) {
+    patch.tilt = clamp(raw.tilt, -45, 45);
+  }
+  if (typeof raw.perspective === 'number' && Number.isFinite(raw.perspective)) {
+    patch.perspective = clamp(raw.perspective, -0.5, 0.5);
+  }
+  if (typeof raw.gap === 'number' && Number.isFinite(raw.gap)) {
+    patch.gap = clamp(Math.round(raw.gap), 0, 100);
+  }
+  if (typeof raw.cornerRadius === 'number' && Number.isFinite(raw.cornerRadius)) {
+    patch.cornerRadius = clamp(Math.round(raw.cornerRadius), 0, 100);
+  }
+  if (typeof raw.jitter === 'number' && Number.isFinite(raw.jitter)) {
+    patch.jitter = clamp(Math.round(raw.jitter), 0, 300);
+  }
+  if (typeof raw.brightness === 'number' && Number.isFinite(raw.brightness)) {
+    patch.brightness = clamp(Math.round(raw.brightness), 0, 200);
+  }
+  if (typeof raw.saturation === 'number' && Number.isFinite(raw.saturation)) {
+    patch.saturation = clamp(Math.round(raw.saturation), 0, 200);
+  }
+  if (typeof raw.overlayStrength === 'number' && Number.isFinite(raw.overlayStrength)) {
+    patch.overlayStrength = clamp(Math.round(raw.overlayStrength), 0, 100);
+  }
+  if (typeof raw.seed === 'number' && Number.isFinite(raw.seed)) {
+    patch.seed = clamp(Math.round(raw.seed), 0, 99999);
+  }
+  if (typeof raw.bgColour === 'string' && isHexColour(raw.bgColour)) {
+    patch.bgColour = raw.bgColour;
+  }
+  if (typeof raw.overlayColour === 'string' && isHexColour(raw.overlayColour)) {
+    patch.overlayColour = raw.overlayColour;
+  }
+  if (
+    raw.overlayType === 'none' ||
+    raw.overlayType === 'solid' ||
+    raw.overlayType === 'gradient' ||
+    raw.overlayType === 'vignette'
+  ) {
+    patch.overlayType = raw.overlayType;
+  }
+  if (raw.aspectRatio === 'source') {
+    patch.aspectRatio = raw.aspectRatio;
+  } else if (typeof raw.aspectRatio === 'number' && Number.isFinite(raw.aspectRatio)) {
+    patch.aspectRatio = clamp(raw.aspectRatio, 0.25, 4);
+  }
+
+  if (Object.keys(patch).length === 0) {
+    throw new Error('Invalid config');
+  }
+
+  return patch;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function isHexColour(value: string): boolean {
+  return /^#[0-9a-fA-F]{6}$/.test(value);
 }
